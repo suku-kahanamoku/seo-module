@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.0.4
+
+[compare changes](https://undefined/undefined/compare/v1.0.3...v1.0.4)
+
+### 🏡 Chore
+
+- Update dependencies (6fdf593)
+
+### ❤️ Contributors
+
+- Suche Kahanamoku <sukusovi@gmail.com>
+
 ## v1.0.3
 
 [compare changes](https://undefined/undefined/compare/v1.0.2...v1.0.3)
