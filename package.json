@@ -1,8 +1,11 @@
 {
   "name": "@suku-kahanamoku/seo-module",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "SEO module",
-  "repository": "@suku-kahanamoku/seo-module",
+  "repository": {
+    "type": "git",
+    "url": "@suku-kahanamoku/seo-module"
+  },
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -23,7 +26,7 @@
     "dist"
   ],
   "scripts": {
-    "prepack": "nuxt-module-build build --failOnWarn=false",
+    "prepack": "nuxt-module-build build",
     "dev": "npm run dev:prepare && nuxi dev playground",
     "dev:build": "nuxi build playground",
     "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
