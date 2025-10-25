@@ -7,7 +7,6 @@ import { type OutputOptions } from "rollup";
  * Možnosti konfigurace modulu `seo-optimizer-module`.
  *
  * @property {boolean} seoEnabled - Povolení modulu SEO.
- * @property {boolean} dropConsole - Odstranění `console.log` z produkčního kódu.
  * @property {boolean} nitroCompress - Povolení komprese veřejných souborů Nitro.
  * @property {boolean} nitroMinify - Povolení minifikace Nitro kódu.
  * @property {boolean} disableDeepUseAsyncData - Zakázání hlubokého `useAsyncData`.
@@ -17,7 +16,6 @@ import { type OutputOptions } from "rollup";
  */
 export interface ModuleOptions {
   seoEnabled: boolean;
-  dropConsole: boolean;
   nitroCompress: boolean;
   nitroMinify: boolean;
   disableDeepUseAsyncData: boolean;
@@ -40,7 +38,6 @@ export interface ModuleOptions {
  * export default defineNuxtConfig({
  *   seoOptimizerModule: {
  *     seoEnabled: true,
- *     dropConsole: true,
  *   },
  * });
  * ```
@@ -54,7 +51,6 @@ export default defineNuxtModule<ModuleOptions>({
   // Výchozí možnosti konfigurace Nuxt modulu
   defaults: {
     seoEnabled: true,
-    dropConsole: true,
     nitroCompress: true,
     nitroMinify: true,
     disableDeepUseAsyncData: true,
@@ -152,15 +148,6 @@ export default defineNuxtModule<ModuleOptions>({
       pushLinkIfMissing({ rel: "manifest", href: "/manifest.webmanifest" });
     }
     _nuxt.options.app.head.link = links;
-
-    // Odstranění `console.log` z produkčního kódu
-    if (_options.dropConsole) {
-      _nuxt.hook("vite:extendConfig", (viteConfig) => {
-        viteConfig.esbuild ||= {};
-        viteConfig.esbuild.pure ||= [];
-        viteConfig.esbuild.pure.push("console.log");
-      });
-    }
 
     // Konfigurace manuálních chunků
     if (_options.manualChunks.enabled) {
