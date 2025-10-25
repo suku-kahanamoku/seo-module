@@ -24,6 +24,9 @@ export interface ModuleOptions {
   criticalCSSEnabled: boolean;
   PWAEnabled: boolean;
   manualChunks: Record<string, any>;
+  // Additional SEO-related options
+  sitemapEnabled?: boolean;
+  robotsEnabled?: boolean;
 }
 
 /**
@@ -66,6 +69,9 @@ export default defineNuxtModule<ModuleOptions>({
         "error-404.vue",
       ],
     },
+    // SEO-related defaults
+    sitemapEnabled: true,
+    robotsEnabled: true,
   },
 
   /**
@@ -97,6 +103,55 @@ export default defineNuxtModule<ModuleOptions>({
         await installModule("@vite-pwa/nuxt"); // Instalace modulu PWA
       }
     }
+
+    // Sitemap, Robots optimization modules (optional)
+    if (_options.sitemapEnabled) {
+      if (!hasNuxtModule("@nuxtjs/sitemap")) {
+        // Sitemap generation helps crawlers discover pages
+        await installModule("@nuxtjs/sitemap");
+      }
+    }
+
+    if (_options.robotsEnabled) {
+      if (!hasNuxtModule("@nuxtjs/robots")) {
+        // Provide robots.txt for crawler control
+        await installModule("@nuxtjs/robots");
+      }
+    }
+
+    // Add a couple of default link tags useful for SEO/performance
+    _nuxt.options.app.head.link = _nuxt.options.app.head.link || [];
+    const links = _nuxt.options.app.head.link;
+    const pushLinkIfMissing = (attrs: Record<string, any>) => {
+      // ignore invalid attrs
+      if (!attrs || !attrs.rel) return;
+
+      // If href is provided, match by rel+href; otherwise match by rel only
+      const matcher = (l: any) =>
+        attrs.href
+          ? l.rel === attrs.rel && l.href === attrs.href
+          : l.rel === attrs.rel;
+      const existing = links.find(matcher);
+
+      if (existing) {
+        // merge attributes so we don't lose useful flags like crossorigin/as/type
+        Object.assign(existing, attrs);
+      } else {
+        links.push(attrs);
+      }
+    };
+
+    // Preconnect to Google Fonts (common optimization) — harmless if not used
+    pushLinkIfMissing({
+      rel: "preconnect",
+      href: "https://fonts.gstatic.com",
+      crossorigin: true,
+    });
+    // Basic manifest link (if PWA enabled it may supply its own)
+    if (_options.PWAEnabled) {
+      pushLinkIfMissing({ rel: "manifest", href: "/manifest.webmanifest" });
+    }
+    _nuxt.options.app.head.link = links;
 
     // Odstranění `console.log` z produkčního kódu
     if (_options.dropConsole) {
@@ -143,6 +198,25 @@ export default defineNuxtModule<ModuleOptions>({
       // Minifikace Nitro kódu
       if (_options.nitroMinify) {
         nitroConfig.minify = true;
+      }
+
+      // Route rules for caching static assets and adding an optimization header
+      nitroConfig.routeRules = nitroConfig.routeRules || {};
+      // Long cache for immutable static assets
+      nitroConfig.routeRules["/**/*.{js,css,svg,png,jpg,jpeg,webp,ico,woff2}"] =
+        nitroConfig.routeRules[
+          "/**/*.{js,css,svg,png,jpg,jpeg,webp,ico,woff2}"
+        ] || {
+          headers: { "cache-control": "public, max-age=31536000, immutable" },
+        };
+      // Short cache for HTML (can be overridden per-route)
+      nitroConfig.routeRules["/**"] = nitroConfig.routeRules["/**"] || {
+        headers: { "cache-control": "public, max-age=0, must-revalidate" },
+      };
+      // Add a small identifying header
+      const globalRule = nitroConfig.routeRules["/**"];
+      if (globalRule && globalRule.headers) {
+        globalRule.headers["x-optimized-by"] = "seo-optimizer-module";
       }
     });
 
