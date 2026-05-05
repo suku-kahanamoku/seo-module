@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v1.0.9
+
+[compare changes](https://undefined/undefined/compare/v1.0.8...v1.0.9)
+
+### 🏡 Chore
+
+- Update package-lock.json (74418e6)
+
+### ❤️ Contributors
+
+- Suku <sukusovi@gmail.com>
+
 ## v1.0.8
 
 [compare changes](https://undefined/undefined/compare/v1.0.7...v1.0.8)
