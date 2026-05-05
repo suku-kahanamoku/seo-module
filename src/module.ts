@@ -21,10 +21,9 @@ export interface ModuleOptions {
   disableDeepUseAsyncData: boolean;
   criticalCSSEnabled: boolean;
   PWAEnabled: boolean;
+  fontaineEnabled: boolean;
+  delayHydrationEnabled: boolean;
   manualChunks: Record<string, any>;
-  // Additional SEO-related options
-  sitemapEnabled?: boolean;
-  robotsEnabled?: boolean;
 }
 
 /**
@@ -56,6 +55,8 @@ export default defineNuxtModule<ModuleOptions>({
     disableDeepUseAsyncData: true,
     criticalCSSEnabled: true,
     PWAEnabled: true,
+    fontaineEnabled: true,
+    delayHydrationEnabled: false,
     manualChunks: {
       enabled: false,
       rootComponents: [
@@ -65,9 +66,6 @@ export default defineNuxtModule<ModuleOptions>({
         "error-404.vue",
       ],
     },
-    // SEO-related defaults
-    sitemapEnabled: true,
-    robotsEnabled: true,
   },
 
   /**
@@ -100,18 +98,17 @@ export default defineNuxtModule<ModuleOptions>({
       }
     }
 
-    // Sitemap, Robots optimization modules (optional)
-    if (_options.sitemapEnabled) {
-      if (!hasNuxtModule("@nuxtjs/sitemap")) {
-        // Sitemap generation helps crawlers discover pages
-        await installModule("@nuxtjs/sitemap");
+    // Fontaine - redukuje CLS způsobený načítáním fontů (font fallback metrics)
+    if (_options.fontaineEnabled) {
+      if (!hasNuxtModule("@nuxtjs/fontaine")) {
+        await installModule("@nuxtjs/fontaine");
       }
     }
 
-    if (_options.robotsEnabled) {
-      if (!hasNuxtModule("@nuxtjs/robots")) {
-        // Provide robots.txt for crawler control
-        await installModule("@nuxtjs/robots");
+    // Delay hydration - zlepšuje INP/TBT odložením hydratace nekritických komponent
+    if (_options.delayHydrationEnabled) {
+      if (!hasNuxtModule("nuxt-delay-hydration")) {
+        await installModule("nuxt-delay-hydration");
       }
     }
 
