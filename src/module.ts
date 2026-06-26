@@ -77,28 +77,6 @@ export default defineNuxtModule<ModuleOptions>({
    * @param {Nuxt} _nuxt - Instance Nuxt aplikace.
    */
   async setup(_options, _nuxt) {
-    // SEO
-    if (_options.seoEnabled) {
-      const seoModules = [
-        "@nuxtjs/robots",
-        "@nuxtjs/sitemap",
-        "nuxt-schema-org",
-        "nuxt-seo-utils",
-        "nuxt-og-image",
-        "nuxt-link-checker",
-      ];
-
-      for (const moduleName of seoModules) {
-        if (!hasNuxtModule(moduleName)) {
-          if (moduleName === "nuxt-og-image") {
-            await installModule(moduleName, { renderer: "takumi" });
-          } else {
-            await installModule(moduleName);
-          }
-        }
-      }
-    }
-
     // Critical CSS
     if (_options.criticalCSSEnabled) {
       if (!hasNuxtModule("@nuxtjs/critters")) {
