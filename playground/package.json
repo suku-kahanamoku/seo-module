@@ -8,6 +8,7 @@
     "generate": "nuxi generate"
   },
   "dependencies": {
+    "@takumi-rs/core": "^2.0.0-beta.13",
     "nuxt": "^4.0.0"
   }
 }

@@ -4,7 +4,7 @@ import { type OutputOptions } from "rollup";
 /**
  * @typedef {Object} ModuleOptions
  * @description
- * Možnosti konfigurace modulu `seo-optimizer-module`.
+ * Možnosti konfigurace modulu `seo-module`.
  *
  * @property {boolean} seoEnabled - Povolení modulu SEO.
  * @property {boolean} nitroCompress - Povolení komprese veřejných souborů Nitro.
@@ -27,7 +27,7 @@ export interface ModuleOptions {
 }
 
 /**
- * @module seo-optimizer-module
+ * @module seo-module
  * @description
  * Tento modul optimalizuje Nuxt aplikaci pro SEO a výkon. Přidává podporu pro SEO, PWA, kritické CSS,
  * kompresi a minifikaci kódu a další optimalizace.
@@ -35,7 +35,7 @@ export interface ModuleOptions {
  * @example
  * ```typescript
  * export default defineNuxtConfig({
- *   seoOptimizerModule: {
+ *   seoModule: {
  *     seoEnabled: true,
  *   },
  * });
@@ -43,8 +43,8 @@ export interface ModuleOptions {
  */
 export default defineNuxtModule<ModuleOptions>({
   meta: {
-    name: "seo-optimizer-module", // Název modulu
-    configKey: "seoOptimizerModule", // Klíč pro konfiguraci v Nuxt configu
+    name: "seo-module", // Název modulu
+    configKey: "seoModule", // Klíč pro konfiguraci v Nuxt configu
   },
 
   // Výchozí možnosti konfigurace Nuxt modulu
@@ -79,8 +79,23 @@ export default defineNuxtModule<ModuleOptions>({
   async setup(_options, _nuxt) {
     // SEO
     if (_options.seoEnabled) {
-      if (!hasNuxtModule("@nuxtjs/seo")) {
-        await installModule("@nuxtjs/seo"); // Instalace modulu SEO
+      const seoModules = [
+        "@nuxtjs/robots",
+        "@nuxtjs/sitemap",
+        "nuxt-schema-org",
+        "nuxt-seo-utils",
+        "nuxt-og-image",
+        "nuxt-link-checker",
+      ];
+
+      for (const moduleName of seoModules) {
+        if (!hasNuxtModule(moduleName)) {
+          if (moduleName === "nuxt-og-image") {
+            await installModule(moduleName, { renderer: "takumi" });
+          } else {
+            await installModule(moduleName);
+          }
+        }
       }
     }
 
@@ -149,7 +164,9 @@ export default defineNuxtModule<ModuleOptions>({
     // Konfigurace manuálních chunků
     if (_options.manualChunks.enabled) {
       _nuxt.hook("vite:extendConfig", (viteConfig, env) => {
-        const chunks = Object.entries(_options.manualChunks);
+        const { enabled: _enabled, ...manualChunkGroups } =
+          _options.manualChunks;
+        const chunks = Object.entries(manualChunkGroups);
 
         if (
           !chunks.length ||
@@ -200,7 +217,7 @@ export default defineNuxtModule<ModuleOptions>({
       // Add a small identifying header
       const globalRule = nitroConfig.routeRules["/**"];
       if (globalRule && globalRule.headers) {
-        globalRule.headers["x-optimized-by"] = "seo-optimizer-module";
+        globalRule.headers["x-optimized-by"] = "seo-module";
       }
     });
 
